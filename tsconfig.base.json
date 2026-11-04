@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "incremental": true,
+    "strictNullChecks": false,
+    "noImplicitAny": true,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": true,
+    "strict": true,
+    "paths": {
+      "@langchain/langgraph/prebuilt": ["node_modules/@langchain/langgraph/dist/prebuilt/index.d.ts"],
+      "@tl_smp/backend/*": ["apps/backend/src/*"],
+      "@tl_smp/frontend/*": ["apps/frontend/src/*"],
+      "@tl_smp/helpers/*": ["libraries/helpers/src/*"],
+      "@tl_smp/nestjs-libraries/*": ["libraries/nestjs-libraries/src/*"],
+      "@tl_smp/react/*": ["libraries/react-shared-libraries/src/*"],
+      "@tl_smp/plugins/*": ["libraries/plugins/src/*"],
+      "@tl_smp/orchestrator/*": ["apps/orchestrator/src/*"],
+      "@tl_smp/extension/*": ["apps/extension/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

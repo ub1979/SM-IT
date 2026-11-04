@@ -1,0 +1,38 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": false,
+      "decorators": true,
+      "dynamicImport": true
+    },
+    "target": "es2020",
+    "baseUrl": "/Users/nevodavid/Projects/tl_smp",
+    "paths": {
+      "@tl_smp/backend/*": ["apps/backend/src/*"],
+      "@tl_smp/cron/*": ["apps/cron/src/*"],
+      "@tl_smp/frontend/*": ["apps/frontend/src/*"],
+      "@tl_smp/helpers/*": ["libraries/helpers/src/*"],
+      "@tl_smp/nestjs-libraries/*": ["libraries/nestjs-libraries/src/*"],
+      "@tl_smp/react/*": ["libraries/react-shared-libraries/src/*"],
+      "@tl_smp/plugins/*": ["libraries/plugins/src/*"],
+      "@tl_smp/workers/*": ["apps/workers/src/*"],
+      "@tl_smp/extension/*": ["apps/extension/src/*"]
+    },
+    "keepClassNames": true,
+    "transform": {
+      "legacyDecorator": true,
+      "decoratorMetadata": true
+    },
+    "loose": true
+  },
+  "module": {
+    "type": "commonjs",
+    "strict": false,
+    "strictMode": true,
+    "lazy": false,
+    "noInterop": false
+  },
+  "sourceMaps": true,
+  "minify": false
+} 
