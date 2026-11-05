@@ -123,16 +123,21 @@ export const PicksSocialsComponent: FC<{
         <div className="innerComponent flex-1 flex">
           <div className="flex flex-wrap gap-[12px] flex-1">
             {availableIntegrations.map((integration) => (
-              <div
+              <button
+                type="button"
+                onClick={toggleIntegration(integration)}
+                aria-label={`Select ${integration.name} (${integration.identifier})`}
+                aria-pressed={selectedIntegrations.some(
+                  (item) => item.integration.id === integration.id
+                )}
                 key={integration.id}
-                className="flex gap-[8px] items-center"
+                className="flex gap-[8px] items-center rounded-[10px] px-[6px] py-[4px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#8b7cff]"
                 {...(toolTip && {
                   'data-tooltip-id': 'tooltip',
                   'data-tooltip-content': integration.name,
                 })}
               >
                 <div
-                  onClick={toggleIntegration(integration)}
                   className={clsx(
                     'cursor-pointer border-[2px] relative rounded-full flex justify-center items-center bg-fifth filter transition-all duration-500',
                     selectedIntegrations.findIndex(
@@ -159,7 +164,10 @@ export const PicksSocialsComponent: FC<{
                   />
                   <PlatformBadge integration={integration} />
                 </div>
-              </div>
+                <span className="text-[13px] max-w-[130px] truncate">
+                  {integration.name}
+                </span>
+              </button>
             ))}
           </div>
         </div>

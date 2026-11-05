@@ -80,9 +80,9 @@ export const SelectCurrent: FC = () => {
       e.stopPropagation();
       e.preventDefault();
       const open = await modals.open({
-        title: 'Remove Social Account',
+        title: 'Remove channel from this post',
         description:
-          'Are you sure you want to remove this social from scheduling?',
+          'Remove this channel from the current post? The connected account will stay linked.',
       });
 
       if (!open) {
@@ -106,13 +106,16 @@ export const SelectCurrent: FC = () => {
         >
           {/* an existing post opens on its channels, without the global mode */}
           {!existingData.integration && (
-            <div
+            <button
+              type="button"
+              aria-pressed={current === 'global'}
+              aria-label="Edit shared content"
               onClick={() => {
                 setHide(true);
                 setCurrent('global');
               }}
               className={clsx(
-                'cursor-pointer flex gap-[8px] rounded-[12px] w-[40px] h-[40px] mobile:w-[44px] mobile:h-[44px] mobile:shrink-0 justify-center items-center bg-newBgLineColor mobile:bg-newSettings',
+                'cursor-pointer flex gap-[8px] rounded-[12px] px-[12px] shrink-0 h-[40px] mobile:min-w-[44px] mobile:h-[44px] mobile:shrink-0 justify-center items-center bg-newBgLineColor mobile:bg-newSettings',
                 current !== 'global'
                   ? 'text-[#A3A3A3]'
                   : 'border mobile:border-[1.5px] border-[#8b7cff] text-[#8b7cff]'
@@ -121,17 +124,30 @@ export const SelectCurrent: FC = () => {
               <div>
                 <GlobalIcon className="mobile:w-[24px] mobile:h-[24px]" />
               </div>
-            </div>
+              <span className="text-[13px] font-medium">Shared content</span>
+            </button>
           )}
           {selectedIntegrations.map(({ integration }) => (
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={`Edit ${integration.identifier} channel: ${integration.name}`}
+              aria-pressed={current === integration.id}
+              onKeyDown={(event) => {
+                if (event.target !== event.currentTarget) return;
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setHide(true);
+                  setCurrent(integration.id);
+                }
+              }}
               onClick={() => {
                 setHide(true);
                 setCurrent(integration.id);
               }}
               key={integration.id}
               className={clsx(
-                'border mobile:border-[1.5px] cursor-pointer relative flex gap-[8px] w-[40px] h-[40px] mobile:w-[44px] mobile:h-[44px] mobile:shrink-0 rounded-[12px] items-center bg-newBgLineColor mobile:bg-newSettings justify-center',
+                'border mobile:border-[1.5px] cursor-pointer relative flex gap-[8px] px-[8px] shrink-0 min-w-[40px] h-[40px] mobile:min-w-[44px] mobile:h-[44px] mobile:shrink-0 rounded-[12px] items-center bg-newBgLineColor mobile:bg-newSettings justify-center',
                 current === integration.id
                   ? 'border-[#8b7cff] text-[#8b7cff]'
                   : 'border-transparent'
@@ -140,12 +156,14 @@ export const SelectCurrent: FC = () => {
               {/* an existing post keeps its channels, each with its own content */}
               {!existingData.integration && (
                 <>
-                  <div
+                  <button
+                    type="button"
+                    aria-label={`Remove ${integration.name} from this post`}
                     onClick={removeSocial(integration)}
                     className="absolute justify-center items-center flex mobile:hidden w-[8px] h-[8px] -top-[1px] -start-[3px] bg-red-500 rounded-full text-white text-[8px]"
                   >
-                    X
-                  </div>
+                    ×
+                  </button>
                   <IsGlobal id={integration.id} />
                 </>
               )}
@@ -185,6 +203,9 @@ export const SelectCurrent: FC = () => {
                   />
                 )}
               </div>
+              <span className="max-w-[110px] truncate text-[13px] font-medium">
+                {integration.name}
+              </span>
             </div>
           ))}
         </div>
@@ -213,7 +234,7 @@ export const IsGlobal: FC<{ id: string }> = ({ id }) => {
       data-tooltip-id="tooltip"
       data-tooltip-content={t(
         'no_longer_global_mode',
-        'No longer in global mode'
+        'Custom content for this channel'
       )}
       className="w-[8px] h-[8px] bg-[#8b7cff] -top-[1px] -end-[3px] absolute rounded-full"
     />

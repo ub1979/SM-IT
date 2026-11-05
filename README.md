@@ -42,6 +42,10 @@ Stop everything when you're done.
 
 Add platform credentials directly in **Calendar > Add Channel**. SM-IT tests them during the platform connection and saves successful app credentials to `.env` for you.
 
+## Publishing content
+
+After linking a channel, use **Calendar > Create Post**. See [the publishing tutorial](docs/publishing.md) for uploading a YouTube video, writing its description, choosing visibility, scheduling, and customizing content for different platforms. The same help is available inside the composer.
+
 ## Connect social channels
 
 Open the **Step-by-step setup guide** inside each channel dialog for account requirements, developer registration, credential locations, permissions, review requirements and troubleshooting. The [complete social channel tutorial](docs/social-channel-setup.md) covers all 35 connectors, including account-password/token connections.
@@ -88,7 +92,7 @@ The backend starts a private Python worker over standard input/output; no extra 
 pnpm exec vitest run scripts/tests/hermes-model.test.ts
 ```
 
-Other AI features, such as writing posts and making images in the post editor, still need `OPENAI_API_KEY` in `.env`.
+The linked Hermes/ChatGPT connection powers Agent chat. Legacy OpenAI-only tools use a separate `OPENAI_API_KEY`; they do not inherit that login. The unconfigured image-generation button and third-party Polotno design editor have been removed from the publishing UI. You can upload photos, artwork and thumbnails you already have.
 
 ## No login
 

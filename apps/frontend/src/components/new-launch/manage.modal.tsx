@@ -15,6 +15,7 @@ import { useT } from '@tl_smp/react/translation/get.transation.service.client';
 import { PicksSocialsComponent } from '@tl_smp/frontend/components/new-launch/picks.socials.component';
 import { EditorWrapper } from '@tl_smp/frontend/components/new-launch/editor';
 import { SelectCurrent } from '@tl_smp/frontend/components/new-launch/select.current';
+import { PublishingHelp } from './publishing.help';
 import {
   Providers,
   ShowAllProviders,
@@ -165,7 +166,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
           <div className="relative mobile:hidden">
             <SettingsIcon size={15} className="text-white" />
           </div>
-          <div>{t('settings', 'Settings')}</div>
+          <div>Channel settings</div>
         </div>
       );
     }
@@ -186,7 +187,9 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
           />
         </div>
         <div>
-          {currentIntegration.name} {t('channel_settings', 'Settings')}
+          {currentIntegration.identifier === 'youtube'
+            ? 'YouTube video settings'
+            : `${currentIntegration.name} settings`}
         </div>
       </div>
     );
@@ -826,7 +829,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
   const scheduleLabel = dummy
     ? t('create_output', 'Create output')
     : !existingData?.integration
-    ? t('add_to_calendar', 'Add to calendar')
+    ? t('schedule_post_action', 'Schedule post')
     : existingData?.posts?.[0]?.state === 'DRAFT'
     ? t('schedule', 'Schedule')
     : t('update', 'Update');
@@ -848,7 +851,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
         ...(!dummy
           ? [
               {
-                label: t('post_now', 'Post Now'),
+                label: t('publish_now_action', 'Publish now'),
                 variant: 'secondary' as const,
                 onClick: schedule('now'),
               },
@@ -999,6 +1002,22 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                         </>
                       )}
                     </div>
+                    {!dummy && mobileTab !== 'preview' && (
+                      <PublishingHelp
+                        onOpenSettings={(id) => {
+                          if (
+                            id &&
+                            current !== id &&
+                            (current !== 'global' ||
+                              selectedIntegrations.length > 1)
+                          ) {
+                            useLaunchStore.getState().setCurrent(id);
+                            setHide(true);
+                          }
+                          setShowSettings(true);
+                        }}
+                      />
+                    )}
                     <div
                       className={clsx(
                         'flex-1 flex',
@@ -1043,7 +1062,14 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                         onClose={() => setShowSettings(false)}
                       />
                     </div>
-                    <div
+                    <button
+                      type="button"
+                      aria-expanded={showSettings}
+                      aria-label={
+                        showSettings
+                          ? 'Back to content'
+                          : 'Open channel settings'
+                      }
                       onClick={() => setShowSettings(!showSettings)}
                       className={clsx(
                         'bg-[#6d5cf5] rounded-[12px] flex items-center gap-[8px] cursor-pointer p-[12px] mobile:hidden',
@@ -1051,7 +1077,9 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                       )}
                     >
                       <div className="flex-1 text-[14px] font-[600] text-white">
-                        {currentIntegrationText}
+                        {showSettings
+                          ? 'Back to content'
+                          : currentIntegrationText}
                       </div>
                       <div>
                         <ChevronDownIcon
@@ -1059,7 +1087,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                           className="text-white"
                         />
                       </div>
-                    </div>
+                    </button>
                     <div
                       className={clsx(
                         !showSettings ? 'hidden' : 'flex-1',
@@ -1191,7 +1219,10 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                     )}
                   >
                     {selectedIntegrations.length === 0
-                      ? t('check_circles_above', 'Check the circles above')
+                      ? t(
+                          'select_channel_to_continue',
+                          'Select a channel to continue'
+                        )
                       : scheduleLabel}
                   </div>
                   {!dummy && (
@@ -1224,7 +1255,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                     )}
                   >
                     <div className="text-white rounded-[12px] bg-[#a46bff] h-[44px] w-full flex justify-center items-center post-now">
-                      {t('post_now', 'Post Now')}
+                      {t('publish_now_action', 'Publish now')}
                     </div>
                   </button>
                 )}

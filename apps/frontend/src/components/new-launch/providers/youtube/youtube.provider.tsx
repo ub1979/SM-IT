@@ -30,11 +30,11 @@ const type = [
 
 const madeForKids = [
   {
-    label: 'No',
+    label: 'No, it is not made for kids',
     value: 'no',
   },
   {
-    label: 'Yes',
+    label: 'Yes, it is made for kids',
     value: 'yes',
   },
 ];
@@ -43,12 +43,24 @@ const YoutubeSettings: FC = () => {
   const { register, control, setValue } = useSettings();
   // the thumbnail is set from the media settings now, older posts may still
   // carry one here, and it wins over the media thumbnail
+  const visibility = useWatch({ control, name: 'type' }) || 'public';
   const thumbnail = useWatch({ control, name: 'thumbnail' });
   return (
-    <div className="flex flex-col">
-      <Input label="Title" {...register('title')} maxLength={100} />
+    <div className="flex flex-col gap-[8px]">
+      <div className="mb-[8px] text-[13px] leading-[1.6] text-textItemBlur">
+        These settings apply to the YouTube upload. Write its description in the
+        large text editor; enter its title below.
+      </div>
+      <Input
+        label="Video title (required)"
+        aria-label="YouTube video title"
+        {...register('title')}
+        maxLength={100}
+        placeholder="Enter the title viewers will see on YouTube"
+      />
       <Select
-        label="Type"
+        label="Visibility"
+        aria-label="YouTube visibility"
         {...register('type', {
           value: 'public',
         })}
@@ -59,8 +71,16 @@ const YoutubeSettings: FC = () => {
           </option>
         ))}
       </Select>
+      <p className="text-[12px] text-textItemBlur mb-[8px]">
+        {visibility === 'private'
+          ? 'Private: restricted viewing on YouTube; it will not appear publicly on your channel.'
+          : visibility === 'unlisted'
+          ? 'Unlisted: anyone with the video link can watch it.'
+          : 'Public: anyone can watch it, and it can appear on your channel and in search.'}
+      </p>
       <Select
-        label="Made for kids"
+        label="Is this video made for kids?"
+        aria-label="Is this video made for kids?"
         {...register('selfDeclaredMadeForKids', {
           value: 'no',
         })}
@@ -71,7 +91,14 @@ const YoutubeSettings: FC = () => {
           </option>
         ))}
       </Select>
-      <MediumTags label="Tags" {...register('tags')} />
+      <p className="text-[12px] text-textItemBlur mb-[8px]">
+        Choose the audience setting that accurately describes the video.
+      </p>
+      <MediumTags label="Video tags (optional)" {...register('tags')} />
+      <p className="text-[12px] text-textItemBlur">
+        Add keywords, pressing Enter after each tag. Tags are separate from the
+        description.
+      </p>
       {!!thumbnail?.path && (
         <div className="mt-[20px] flex items-center gap-[10px] text-[12px]">
           <div className="flex-1">

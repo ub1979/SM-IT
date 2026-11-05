@@ -1,5 +1,10 @@
 'use client';
 
+import {
+  postTextLabel,
+  postTextPlaceholder,
+} from '@tl_smp/helpers/utils/post-editor-copy';
+
 import React, {
   FC,
   useCallback,
@@ -122,10 +127,7 @@ const EditorImage = Node.create({
   },
 });
 
-const insertImages = (
-  editor: any,
-  media: { path: string; alt?: string }[]
-) => {
+const insertImages = (editor: any, media: { path: string; alt?: string }[]) => {
   if (!media.length) {
     return;
   }
@@ -341,9 +343,9 @@ export const EditorWrapper: FC<{
       await deleteDialog(
         t(
           'are_you_sure_go_back_to_global_mode',
-          'This action is irreversible. Are you sure you want to go back to global mode?'
+          'Replace this channel’s custom text and media with the shared content? Other channels will not change.'
         ),
-        t('yes_go_back_to_global_mode', 'Yes, go back to global mode')
+        t('yes_go_back_to_global_mode', 'Use shared content')
       )
     ) {
       setLoaded(false);
@@ -432,7 +434,10 @@ export const EditorWrapper: FC<{
           <div className="flex gap-[6px] items-center mobile:hidden">
             <div className="w-[8px] h-[8px] rounded-full bg-[#8b7cff]" />
             <div className="text-[14px] font-[600]">
-              {t('editing_a_specific_network', 'Editing a Specific Network')}
+              {t(
+                'editing_a_specific_network',
+                'Custom content for this channel'
+              )}
             </div>
           </div>
           <div className="flex gap-[6px] items-center">
@@ -440,7 +445,7 @@ export const EditorWrapper: FC<{
               <ResetIcon />
             </div>
             <div className="text-[13px] font-[600] mobile:hidden">
-              {t('back_to_global', 'Back to global')}
+              {t('back_to_global', 'Use shared content again')}
             </div>
           </div>
         </div>
@@ -499,13 +504,16 @@ export const EditorWrapper: FC<{
             <div className="text-[14px] font-[600] text-white mobile:text-textColor">
               {t(
                 'click_to_exit_global_editing',
-                'Click this button to exit global editing and customize the post for this channel'
+                'This channel is using shared text and media. Customize it to change only this channel’s version.'
               )}
             </div>
             <div>
-              <div className="text-white rounded-[12px] h-[44px] px-[20px] bg-[#a46bff] cursor-pointer flex justify-center items-center">
-                {t('edit_content', 'Edit content')}
-              </div>
+              <button
+                type="button"
+                className="text-white rounded-[12px] h-[44px] px-[20px] bg-[#a46bff] cursor-pointer flex justify-center items-center"
+              >
+                {t('customize_channel_content', 'Customize this channel')}
+              </button>
             </div>
           </div>
           <div className="absolute w-full h-full left-0 top-0 bg-newBackdrop opacity-60 mobile:bg-newSettings mobile:opacity-100 z-[100] rounded-[12px]" />
@@ -962,6 +970,26 @@ export const Editor: FC<{
                 onChange={props.onChange}
                 paste={paste}
                 autoFocus={autoFocus}
+                placeholder={
+                  num > 0
+                    ? 'Write a comment…'
+                    : postTextPlaceholder(
+                        identifier === 'global' &&
+                          props.selectedIntegration.length === 1
+                          ? props.selectedIntegration[0].integration.identifier
+                          : identifier
+                      )
+                }
+                label={
+                  num > 0
+                    ? 'Comment'
+                    : postTextLabel(
+                        identifier === 'global' &&
+                          props.selectedIntegration.length === 1
+                          ? props.selectedIntegration[0].integration.identifier
+                          : identifier
+                      )
+                }
                 ref={editorRef}
               />
             </div>
@@ -1012,7 +1040,7 @@ export const Editor: FC<{
                     mediaNotAvailable={num > 0 && comments === 'no-media'}
                     allData={allValues}
                     text={valueWithoutHtml}
-                    label={t('attachments', 'Attachments')}
+                    label={t('photos_and_videos', 'Photos & videos')}
                     description=""
                     value={props.pictures}
                     dummy={dummy}
@@ -1117,13 +1145,17 @@ export const Editor: FC<{
                           ? clsx(
                               'post-toolbar mobile:fixed mobile:bottom-0 mobile:inset-x-0 mobile:items-center mobile:px-[16px] mobile:py-[12px] mobile:bg-newBgColorInner',
                               // the picker opens from the bar and has to cover the top bar
-                              emojiPickerOpen ? 'mobile:z-[500]' : 'mobile:z-[440]'
+                              emojiPickerOpen
+                                ? 'mobile:z-[500]'
+                                : 'mobile:z-[440]'
                             )
                           : 'mobile:hidden'
                         : undefined
                     }
                     toolsStyle={
-                      flat && active && keyboard ? { bottom: keyboard } : undefined
+                      flat && active && keyboard
+                        ? { bottom: keyboard }
+                        : undefined
                     }
                     toolBarEnd={
                       flat && active ? (
@@ -1156,14 +1188,17 @@ export const OnlyEditor = forwardRef<
     onChange: (value: string) => void;
     paste?: (event: ClipboardEvent | File[], slice?: Slice) => boolean;
     autoFocus?: boolean;
-  }
->(({ editorType, inlineImages, value, onChange, paste, autoFocus }, ref) => {
+    placeholder?: string;
+    label?: string;
+  }>(({ editorType, inlineImages, value, onChange, paste, autoFocus, placeholder, label }, ref) => {
   const t = useT();
   const fetch = useFetch();
 
   const { internal } = useLaunchStore(
     useShallow((state) => ({
-      internal: state.internal.find((p) => p.integration.id === state.current),
+      internal: state.internal.find(
+        (p) => p.integration.id === state.current
+      ),
     }))
   );
 
@@ -1213,7 +1248,8 @@ export const OnlyEditor = forwardRef<
       BulletList,
       ListItem,
       Placeholder.configure({
-        placeholder: t('write_something', 'Write something …'),
+        placeholder:
+          placeholder || t('write_post_text', 'Write your post text…'),
         emptyEditorClass: 'is-editor-empty',
       }),
       ...(editorType === 'html' || editorType === 'markdown'
@@ -1349,6 +1385,12 @@ export const OnlyEditor = forwardRef<
     shouldRerenderOnTransaction: true,
     immediatelyRender: false,
     editorProps: {
+      attributes: {
+        role: 'textbox',
+        'aria-label': label || 'Post text',
+        'aria-multiline': 'true',
+        style: label === 'YouTube video description' ? 'min-height:120px; outline:none;' : 'outline:none;',
+      },
       handlePaste: (view, event, slice) => !!paste?.(event as any, slice),
       // the default parser merges consecutive newlines, which drops the
       // blank lines of pasted plain text; keep each one as an empty paragraph
@@ -1372,7 +1414,7 @@ export const OnlyEditor = forwardRef<
     onUpdate: (innerProps) => {
       onChange?.(innerProps.editor.getHTML());
     },
-  });
+  }, [editorType, placeholder, label]);
 
   useImperativeHandle(ref, () => ({
     editor,

@@ -23,9 +23,7 @@ import { useToaster } from '@tl_smp/react/toaster/toaster';
 import clsx from 'clsx';
 import { VideoFrame } from '@tl_smp/react/helpers/video.frame';
 import { useUppyUploader } from '@tl_smp/frontend/components/media/new.uploader';
-import dynamic from 'next/dynamic';
 import { useUser } from '@tl_smp/frontend/components/layout/user.context';
-import { AiImage } from '@tl_smp/frontend/components/launches/ai.image';
 import { DropFiles } from '@tl_smp/frontend/components/layout/drop.files';
 import { deleteDialog } from '@tl_smp/react/helpers/delete.dialog';
 import { useT } from '@tl_smp/react/translation/get.transation.service.client';
@@ -45,7 +43,6 @@ import {
   DragHandleIcon,
   MediaSettingsIcon,
   InsertMediaIcon,
-  DesignMediaIcon,
   VerticalDividerIcon,
   NoMediaIcon,
   TrashIcon,
@@ -54,9 +51,6 @@ import { useLaunchStore } from '@tl_smp/frontend/components/new-launch/store';
 import { useShallow } from 'zustand/react/shallow';
 import { LoadingComponent } from '@tl_smp/frontend/components/layout/loading';
 import { useDebounce } from 'use-debounce';
-const Polonto = dynamic(
-  () => import('@tl_smp/frontend/components/launches/polonto')
-);
 const showModalEmitter = new EventEmitter();
 // on phones the media library takes the whole screen
 export const mediaLibrarySize = () =>
@@ -466,21 +460,24 @@ export const MediaBox: FC<{
         ) : (
           <PlusIcon size={14} />
         )}
-        <div className={loading ? 'invisible' : undefined}>{t('upload', 'Upload')}</div>
+        <div className={loading ? 'invisible' : undefined}>
+          {t('upload', 'Upload')}
+        </div>
       </button>
     );
   }, [t, loading]);
 
   return (
-    <DropFiles disabled={loading} className="flex flex-col flex-1" onDrop={dragAndDrop}>
+    <DropFiles
+      disabled={loading}
+      className="flex flex-col flex-1"
+      onDrop={dragAndDrop}
+    >
       <div className="flex flex-col flex-1">
         <div
           className={clsx(
             'flex items-center gap-[12px] mobile:flex-wrap',
-            !isLoading &&
-              !data?.results?.length &&
-              !debouncedSearch &&
-              'hidden'
+            !isLoading && !data?.results?.length && !debouncedSearch && 'hidden'
           )}
         >
           <div className="flex-1 mobile:basis-full">
@@ -499,7 +496,9 @@ export const MediaBox: FC<{
             className="hidden"
             multiple={true}
           />
-          <div className={clsx('flex gap-[8px]', !standalone && 'mobile:hidden')}>
+          <div
+            className={clsx('flex gap-[8px]', !standalone && 'mobile:hidden')}
+          >
             {btn}
             <ThirdPartyMediaLibrary onImported={() => mutate()} />
           </div>
@@ -507,7 +506,7 @@ export const MediaBox: FC<{
             <div className="hidden mobile:block basis-full text-[14px] font-[600]">
               {t(
                 'select_or_upload_pictures_max_1gb',
-                'Select or upload pictures (maximum 1 GB per upload).'
+                'Select or upload photos and videos (maximum 1 GB per upload session).'
               )}
             </div>
           )}
@@ -564,10 +563,7 @@ export const MediaBox: FC<{
                 <NoMediaIcon />
                 <div className="text-[20px] font-[600]">
                   {debouncedSearch
-                    ? t(
-                        'no_media_match_search',
-                        'No media matches your search'
-                      )
+                    ? t('no_media_match_search', 'No media matches your search')
                     : t(
                         'you_dont_have_any_media_yet',
                         "You don't have any media yet"
@@ -576,12 +572,12 @@ export const MediaBox: FC<{
                 <div className="whitespace-pre-line text-newTextColor/[0.6] text-center">
                   {t(
                     'select_or_upload_pictures_max_1gb',
-                    'Select or upload pictures (maximum 1 GB per upload).'
+                    'Select or upload photos and videos (maximum 1 GB per upload session).'
                   )}{' '}
                   {'\n'}
                   {t(
                     'you_can_drag_drop_pictures',
-                    'You can also drag & drop pictures.'
+                    'You can also drag and drop photos or videos.'
                   )}
                 </div>
                 <div className="forceChange flex gap-[8px] mobile:w-full mobile:max-w-[300px] mobile:child:flex-1">
@@ -862,19 +858,6 @@ export const MultiMediaComponent: FC<{
     [currentMedia]
   );
 
-  const designMedia = useCallback(() => {
-    if (!!user?.tier?.ai && !dummy) {
-      modals.openModal({
-        askClose: false,
-        title: t('design_media', 'Design Media'),
-        size: '80%',
-        children: (close) => (
-          <Polonto setMedia={changeMedia} closeModal={close} />
-        ),
-      });
-    }
-  }, [changeMedia, t]);
-
   return (
     <>
       <div className="b1 flex flex-col gap-[8px] mobile:gap-[16px] rounded-bl-[8px] select-none w-full">
@@ -891,58 +874,61 @@ export const MultiMediaComponent: FC<{
               handle=".dragging"
             >
               {currentMedia.map((media, index) => (
-                  <div key={media.id} className="cursor-pointer rounded-[5px] w-[40px] h-[40px] mobile:w-[60px] mobile:h-[60px] mobile:rounded-[12px] border-2 mobile:border-0 border-tableBorder relative flex transition-all">
-                    <DragHandleIcon className="z-[20] dragging absolute pe-[1px] pb-[3px] -start-[4px] -top-[4px] cursor-move" />
+                <div
+                  key={media.id}
+                  className="cursor-pointer rounded-[5px] w-[40px] h-[40px] mobile:w-[60px] mobile:h-[60px] mobile:rounded-[12px] border-2 mobile:border-0 border-tableBorder relative flex transition-all"
+                >
+                  <DragHandleIcon className="z-[20] dragging absolute pe-[1px] pb-[3px] -start-[4px] -top-[4px] cursor-move" />
 
-                    <div className="w-full h-full relative group">
-                      <div
-                        onClick={async () => {
-                          modals.openModal({
-                            title: t('media_settings', 'Media Settings'),
-                            size: '720px',
-                            children: (close) => (
-                              <MediaComponentInner
-                                media={media as any}
-                                onClose={close}
-                                onSelect={(value: any) => {
-                                  onChange({
-                                    target: {
-                                      name: 'upload',
-                                      value: currentMedia.map((p) => {
-                                        if (p.id === media.id) {
-                                          return {
-                                            ...p,
-                                            ...value,
-                                          };
-                                        }
-                                        return p;
-                                      }),
-                                    },
-                                  });
-                                }}
-                              />
-                            ),
-                          });
-                        }}
-                        className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-black/80 rounded-[10px] opacity-0 group-hover:opacity-100 transition-opacity z-[9]"
-                      >
-                        <MediaSettingsIcon className="cursor-pointer relative z-[200]" />
-                      </div>
-                      {hasExtension(media?.path, 'mp4') ? (
-                        <VideoFrame url={mediaDirectory.set(media?.path)} />
-                      ) : (
-                        <img
-                          className="w-full h-full object-cover rounded-[4px] mobile:rounded-[12px]"
-                          src={mediaDirectory.set(media?.path)}
-                        />
-                      )}
+                  <div className="w-full h-full relative group">
+                    <div
+                      onClick={async () => {
+                        modals.openModal({
+                          title: t('media_settings', 'Media Settings'),
+                          size: '720px',
+                          children: (close) => (
+                            <MediaComponentInner
+                              media={media as any}
+                              onClose={close}
+                              onSelect={(value: any) => {
+                                onChange({
+                                  target: {
+                                    name: 'upload',
+                                    value: currentMedia.map((p) => {
+                                      if (p.id === media.id) {
+                                        return {
+                                          ...p,
+                                          ...value,
+                                        };
+                                      }
+                                      return p;
+                                    }),
+                                  },
+                                });
+                              }}
+                            />
+                          ),
+                        });
+                      }}
+                      className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-black/80 rounded-[10px] opacity-0 group-hover:opacity-100 transition-opacity z-[9]"
+                    >
+                      <MediaSettingsIcon className="cursor-pointer relative z-[200]" />
                     </div>
-
-                    <CloseCircleIcon
-                      onClick={clearMedia(index)}
-                      className="absolute -end-[4px] -top-[4px] mobile:-end-[8px] mobile:-top-[8px] mobile:w-[24px] mobile:h-[24px] z-[20] rounded-full bg-white"
-                    />
+                    {hasExtension(media?.path, 'mp4') ? (
+                      <VideoFrame url={mediaDirectory.set(media?.path)} />
+                    ) : (
+                      <img
+                        className="w-full h-full object-cover rounded-[4px] mobile:rounded-[12px]"
+                        src={mediaDirectory.set(media?.path)}
+                      />
+                    )}
                   </div>
+
+                  <CloseCircleIcon
+                    onClick={clearMedia(index)}
+                    className="absolute -end-[4px] -top-[4px] mobile:-end-[8px] mobile:-top-[8px] mobile:w-[24px] mobile:h-[24px] z-[20] rounded-full bg-white"
+                  />
+                </div>
               ))}
             </ReactSortable>
           )}
@@ -961,7 +947,9 @@ export const MultiMediaComponent: FC<{
           <div className="flex gap-[8px] mobile:gap-[4px] mobile:flex-1 mobile:min-w-0 mobile:overflow-x-auto mobile:scrollbar-none b1">
             {!mediaNotAvailable && (
               <div className="flex py-[10px] mobile:py-0 mobile:shrink-0 b2 items-center gap-[4px]">
-                <div
+                <button
+                  type="button"
+                  aria-label="Choose photos and videos"
                   onClick={showModal}
                   className="cursor-pointer h-[30px] mobile:h-[40px] mobile:min-w-[40px] rounded-[6px] mobile:rounded-[8px] justify-center items-center flex bg-newColColor mobile:bg-newSettings px-[8px]"
                 >
@@ -969,36 +957,18 @@ export const MultiMediaComponent: FC<{
                     <div>
                       <InsertMediaIcon className="mobile:w-[20px] mobile:h-[20px]" />
                     </div>
-                    <div className="text-[10px] font-[600] maxMedia:hidden block">
-                      {t('insert_media', 'Insert Media')}
+                    <div className="text-[11px] font-medium mobile:hidden">
+                      {t('photos_and_videos', 'Photos & videos')}
                     </div>
                   </div>
-                </div>
-                <div
-                  onClick={designMedia}
-                  className="cursor-pointer h-[30px] rounded-[6px] justify-center items-center flex bg-newColColor px-[8px] mobile:hidden"
-                >
-                  <div className="flex gap-[5px] items-center">
-                    <div>
-                      <DesignMediaIcon />
-                    </div>
-                    <div className="text-[10px] font-[600] iconBreak:hidden block">
-                      {t('design_media', 'Design Media')}
-                    </div>
-                  </div>
-                </div>
+                </button>
 
                 {!insertInContent && (
                   <ThirdPartyMedia allData={allData} onChange={changeMedia} />
                 )}
 
-                {!!user?.tier?.ai && (
-                  <>
-                    <AiImage value={text} onChange={changeMedia} />
-                    {!insertInContent && (
-                      <AiVideo value={text} onChange={changeMedia} />
-                    )}
-                  </>
+                {!!user?.tier?.ai && !insertInContent && (
+                  <AiVideo value={text} onChange={changeMedia} />
                 )}
               </div>
             )}
@@ -1056,10 +1026,8 @@ export const MediaComponent: FC<{
 }> = (props) => {
   const t = useT();
 
-  const { name, type, label, description, onChange, value, width, height } =
-    props;
+  const { name, type, label, description, onChange, value } = props;
   const { getValues } = useSettings();
-  const user = useUser();
   useEffect(() => {
     const settings = getValues()[props.name];
     if (settings) {
@@ -1070,24 +1038,6 @@ export const MediaComponent: FC<{
   const modals = useModals();
   const mediaDirectory = useMediaDirectory();
 
-  const showDesignModal = useCallback(() => {
-    modals.openModal({
-      title: t('media_editor', 'Media Editor'),
-      askClose: false,
-      closeOnEscape: true,
-      fullScreen: true,
-      size: 'calc(100% - 80px)',
-      height: 'calc(100% - 80px)',
-      children: (close) => (
-        <Polonto
-          width={width}
-          height={height}
-          setMedia={changeMedia}
-          closeModal={close}
-        />
-      ),
-    });
-  }, [t]);
   const changeMedia = useCallback((m: { path: string; id: string }[]) => {
     setCurrentMedia(m[0]);
     onChange({
@@ -1134,12 +1084,6 @@ export const MediaComponent: FC<{
       )}
       <div className="flex gap-[5px]">
         <Button onClick={showModal}>{t('select', 'Select')}</Button>
-        <Button
-          onClick={showDesignModal}
-          className="!bg-customColor45 mobile:hidden"
-        >
-          {t('editor', 'Editor')}
-        </Button>
         <Button secondary={true} onClick={clearMedia}>
           {t('clear', 'Clear')}
         </Button>
