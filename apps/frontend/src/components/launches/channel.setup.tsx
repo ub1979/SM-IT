@@ -3,6 +3,8 @@
 import { FormEvent, useState } from 'react';
 import type { SocialProviderSetup } from '@tl_smp/helpers/utils/social-provider-setup';
 import { useFetch } from '@tl_smp/helpers/utils/custom.fetch';
+import { socialProviderGuides } from '@tl_smp/helpers/utils/social-provider-guides';
+import { ProviderGuide } from './provider.guide';
 
 function fieldLabel(key: string) {
   if (key.endsWith('MNEMONIC')) return 'App wallet recovery phrase';
@@ -66,6 +68,7 @@ export function ChannelSetup({
       className="flex flex-col gap-[14px] text-[14px] leading-[1.5]"
     >
       <p>{setup.instructions}</p>
+      <ProviderGuide identifier={identifier} />
       {setup.requiresCallback !== false && (
         <div>
           <p>Register this callback URL in your {name} developer app:</p>
@@ -120,6 +123,11 @@ export function ChannelSetup({
               <span className="text-[11px] text-textItemBlur break-all">
                 {key}
               </span>
+              {socialProviderGuides[identifier]?.fields[key] && (
+                <span className="text-[12px] text-textItemBlur">
+                  {socialProviderGuides[identifier].fields[key]}
+                </span>
+              )}
             </label>
           );
         })}

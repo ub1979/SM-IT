@@ -2,6 +2,7 @@
 
 import type { SocialProviderSetup } from '@tl_smp/helpers/utils/social-provider-setup';
 import { ChannelSetup } from './channel.setup';
+import { ProviderGuide } from './provider.guide';
 
 import { useModals } from '@tl_smp/frontend/components/layout/new-modal';
 import React, { FC, useCallback, useMemo } from 'react';
@@ -236,6 +237,7 @@ export const CustomVariables: FC<{
 
   return (
     <div className="rounded-[4px] relative">
+      <ProviderGuide identifier={identifier} />
       <FormProvider {...methods}>
         <form
           className="gap-[8px] flex flex-col pt-[10px]"
@@ -303,13 +305,15 @@ const ExtensionNotFound: FC = () => {
 };
 
 const ChromeExtensionWarning: FC<{
+  identifier: string;
   onConfirm: () => void;
   onCancel: () => void;
-}> = ({ onConfirm, onCancel }) => {
+}> = ({ identifier, onConfirm, onCancel }) => {
   const modals = useModals();
   const t = useT();
   return (
     <div className="flex flex-col gap-[16px] pt-[8px]">
+      <ProviderGuide identifier={identifier} />
       <p className="text-[14px] text-textColor/80">
         {t(
           'chrome_extension_warning_intro',
@@ -446,6 +450,9 @@ export const AddProviderComponent: FC<{
             );
           modal.openModal({
             title: `Add ${capitalize(identifier)}`,
+            size: 680,
+            maxSize: 'calc(100vw - 32px)',
+            top: 20,
             withCloseButton: true,
             ...(isMobile ? { removeLayout: true, fullScreen: true } : {}),
             classNames: {
@@ -455,6 +462,9 @@ export const AddProviderComponent: FC<{
               <div
                 {...(isMobile ? { className: 'h-full bg-black p-[20px]' } : {})}
               >
+                {identifier === 'moltbook' && (
+                  <ProviderGuide identifier={identifier} />
+                )}
                 <Web3Providers
                   onComplete={(code, newState) => {
                     window.location.href = `/integrations/social/${identifier}?code=${encodeURIComponent(
@@ -548,10 +558,14 @@ export const AddProviderComponent: FC<{
           const confirmed = await new Promise<boolean>((resolve) => {
             modal.openModal({
               title: t('chrome_extension_notice', 'Browser Extension Notice'),
+              size: 680,
+              maxSize: 'calc(100vw - 32px)',
+              top: 20,
               withCloseButton: true,
               onClose: () => resolve(false),
               children: (
                 <ChromeExtensionWarning
+                  identifier={identifier}
                   onConfirm={() => {
                     resolve(true);
                   }}
@@ -665,6 +679,9 @@ export const AddProviderComponent: FC<{
         if (customFields) {
           modal.openModal({
             title: t('add_provider_title', 'Add Provider'),
+            size: 680,
+            maxSize: 'calc(100vw - 32px)',
+            top: 20,
             withCloseButton: true,
             ...(isMobile ? { removeLayout: true, fullScreen: true } : {}),
             classNames: {

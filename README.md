@@ -44,6 +44,8 @@ Add platform credentials directly in **Calendar > Add Channel**. SM-IT tests the
 
 ## Connect social channels
 
+Open the **Step-by-step setup guide** inside each channel dialog for account requirements, developer registration, credential locations, permissions, review requirements and troubleshooting. The [complete social channel tutorial](docs/social-channel-setup.md) covers all 35 connectors, including account-password/token connections.
+
 In **Calendar > Add Channel**, choose a platform and enter its app ID, secret or bot token in the setup form. Register the callback URL shown there, then choose **Test and connect** and approve access on the platform. This covers all 25 platforms with installation-level app credentials, including Telegram, Farcaster, VK, MeWe, Mastodon and Whop. Platforms with account-specific tokens already collect those in their channel forms.
 
 App credentials stay temporarily in backend memory for up to 15 minutes. SM-IT writes them to the root `.env` only after the provider returns a valid account authorization; failed or cancelled tests leave the file unchanged. Saving is atomic, preserves unrelated configuration, and restricts file access to the local owner. Saved secret values are never returned to the setup form. Backend and publishing workers read updated app credentials without restarting once this version is running.
