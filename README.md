@@ -1,5 +1,7 @@
 # SM-IT
 
+**Version 1.1.0** · [Release notes](CHANGELOG.md)
+
 Self-hosted tool for scheduling social media and chat posts, with a calendar, analytics, team management and a media library.
 
 ## Stack
